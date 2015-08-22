@@ -24,7 +24,8 @@ var bg;
 function preload() {
   game.load.spritesheet('shia', 'http://placehold.it/320x480/fff/000', playerWidth, playerHeight);
   game.load.image('background', 'http://placehold.it/100x100');
-  game.load.image('ground', 'http://placehold.it/32x32/663399/663399');
+  game.load.image('ground', 'http://placehold.it/32x32/4CB74C/4CB74C');
+  game.load.image('prey', 'http://placehold.it/32x32/663399/663399');
 }
 
 function create() {
@@ -42,14 +43,27 @@ function create() {
   player.animations.add('left', [0, 1, 2, 3], 10, true);
   player.animations.add('turn', [4], 20, true);
   player.animations.add('right', [5, 6, 7, 8], 10, true);
+
+  // Generate the ground
   ground = game.add.group();
   for(var x = 0; x < worldWidth; x += 32) {
-    // Add the ground blocks, enable physics on each, make them immovable
     var groundBlock = game.add.sprite(x, worldHeight - 32, 'ground');
     game.physics.enable(groundBlock, Phaser.Physics.ARCADE);
     groundBlock.body.immovable = true;
     groundBlock.body.allowGravity = false;
     ground.add(groundBlock);
+  }
+
+  prey = game.add.group();
+  function spawnPrey(){
+    var preyBlock = game.add.sprite(Math.random() * worldWidth, worldHeight - 64, 'prey');
+    game.physics.enable(preyBlock, Phaser.Physics.ARCADE);
+    preyBlock.body.immovable = true;
+    preyBlock.body.allowGravity = false;
+    prey.add(preyBlock);
+  }
+  for (var i = 0; i < 10; i++){
+    spawnPrey();
   }
 
   // Player controls

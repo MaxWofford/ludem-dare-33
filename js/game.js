@@ -24,8 +24,10 @@ var bg;
 
 function preload() {
   game.load.spritesheet('shia', 'img/shia.png', 64, 64);
+  game.load.spritesheet('trap', 'img/bearTrap.png', 64, 64);
   game.load.image('background', 'http://placehold.it/100x100');
   game.load.image('ground', 'http://placehold.it/32x32/4CB74C/4CB74C');
+  game.load.image('car', 'img/car.png');
   game.load.image('prey', 'http://placehold.it/32x32/663399/663399');
 }
 
@@ -44,10 +46,12 @@ function create() {
   player.animations.add('left', [0, 1, 2, 3], 5, true);
   player.animations.add('left-sprint', [9, 10, 11,11], 8, true);
   player.animations.add('left-pounce', [9, 10, 11], 8, false);
+  player.animations.add('left-idle', [0], 20, true);
   player.animations.add('turn', [4], 20, true);
   player.animations.add('right', [5, 6, 7, 8], 5, true);
   player.animations.add('right-sprint', [12, 13, 14,14], 8, true);
   player.animations.add('right-pounce', [12, 13, 14], 8, false);
+  player.animations.add('right-idle', [5], 20, true);
 
   // Generate the ground
   ground = game.add.group();
@@ -123,19 +127,9 @@ function update() {
       player.moveRight();
     }
     else {
-      if (facing != 'idle') {
-        player.animations.stop();
-        player.body.velocity.x = 0;
-        if (facing == 'left') {
-          player.frame = 0;
-        }
-        else {
-          player.frame = 5;
-        }
-        facing = 'idle';
-      }
+      player.animations.play(facing+"-idle");
+      player.body.velocity.x = 0;
     }
-  
     if ((wasd.up.isDown || cursors.up.isDown || jumpButton.isDown)&&wasd.shift.isDown) {
       console.log('jumping');
       player.pounce();

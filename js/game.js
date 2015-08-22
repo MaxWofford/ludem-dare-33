@@ -11,6 +11,8 @@ var worldHeight = 600;
 var playerHeight = 48;
 var playerWidth = 32;
 var pounceSpeedMultiplier = 3;
+var preySpawns = [750, 900, 1050];
+var preyTargets = [400, 500, 1300];
 
 var game = new Phaser.Game(800, 600, Phaser.CANVAS, 'actual-cannibal', { preload: preload, create: create, update: update, render: render });
 
@@ -49,15 +51,26 @@ function create() {
     ground.add(groundBlock);
   }
 
-  prey = game.add.group();
+  traps = game.add.group();
+  trap = game.add.sprite(200, worldHeight - 90, 'trap');
+  trap.animations.add('snap',[0,1,2,3,4],11,true);
+  trap.animations.play('snap');
+  game.physics.enable(trap, Phaser.Physics.ARCADE);
+  trap.body.immovable = true;
+  trap.body.allowGravity = false;
+  traps.add(trap);
+
+  preys = game.add.group();
   function spawnPrey(){
-    var preyBlock = game.add.sprite(Math.random() * worldWidth, worldHeight - 64, 'prey');
-    game.physics.enable(preyBlock, Phaser.Physics.ARCADE);
-    preyBlock.body.immovable = true;
-    preyBlock.body.allowGravity = false;
-    prey.add(preyBlock);
+    prey = game.add.sprite(preySpawns[Math.round(preySpawns.length * Math.random())], worldHeight - 64, 'prey');
+    prey.target = preyTargets[Math.round(preyTargets.length * Math.random())]
+    game.physics.enable(prey, Phaser.Physics.ARCADE);
+    prey.body.allowGravity = false;
+    prey.body.velocity.x = -40;
+    preys.add(prey);
   }
-  for (var i = 0; i < 10; i++){
+
+  for (var i = 1; i < 20; i++) {
     spawnPrey();
   }
 
@@ -125,11 +138,19 @@ function create() {
 }
 
 function update() {
+  //Prey updates
+  preys.forEachAlive(function(prey){
+    if (prey.target > prey.position.x) {
+      prey.body.velocity.x = 40;
+    } else{
+      prey.body.velocity.x = -40;
+    }
+  })
+  //Camera updates
   game.camera.focusOnXY(player.position.x, game.world.height / 2);
-
+  //Player updates
   game.physics.arcade.collide(player, ground);
-  
-  if(player.body.touching.down){
+  if(player.body.touching.down) {
     if (cursors.left.isDown || wasd.left.isDown) {
       player.moveLeft();
     }
@@ -145,7 +166,6 @@ function update() {
       player.pounce();
     }
   }
-
 }
 
 function render () {
@@ -153,6 +173,5 @@ function render () {
   // game.debug.text(game.time.physicsElapsed, 32, 32);
   // game.debug.body(player);
   // game.debug.bodyInfo(player, 16, 24);
-
 
 }

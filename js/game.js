@@ -23,6 +23,7 @@ var sprinting = false;
 var cursors;
 var jumpButton;
 var bg;
+var healthbar;
 
 function preload() {
   game.load.spritesheet('shia', 'img/shia.png', 64, 64);
@@ -31,6 +32,8 @@ function preload() {
   game.load.image('ground', 'img/road.png');
   game.load.image('car', 'img/car.png');
   game.load.spritesheet('prey', 'img/person.png', 64, 64);
+  game.load.image('healthbar', 'http://placehold.it/32x32/663366/663366');
+  game.load.image('healthbarCharged', 'http://placehold.it/32x32/663399/663399');
 }
 
 function create() {
@@ -139,6 +142,10 @@ function create() {
     }
     facing = 'right';
   };
+
+  //ui
+  healthbar = game.add.sprite(100, 100, 'healthbar');
+  healthbar.cropEnabled = true;
 }
 
 function update() {
@@ -182,6 +189,8 @@ function update() {
     }
   }
   //Stamina
+  healthbar.width = (player.stamina / 200) * 100;
+  healthbar.position.x = game.camera.position.x - healthbar.width / 2;
   player.stamina += staminaRegen;
   if (!wasd.shift.isDown){
     player.stamina += staminaRegen;

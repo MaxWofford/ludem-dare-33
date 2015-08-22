@@ -11,8 +11,8 @@ var worldHeight = 600;
 var playerHeight = 48;
 var playerWidth = 32;
 var pounceSpeedMultiplier = 3;
-var preySpawns = [750, 900, 1050];
-var preyTargets = [400, 500, 1300];
+var preySpawns = [100, 900, 1050];
+var preyTargets = [400, 700, 1300];
 
 var game = new Phaser.Game(800, 600, Phaser.CANVAS, 'actual-cannibal', { preload: preload, create: create, update: update, render: render });
 
@@ -63,8 +63,8 @@ function create() {
   preys = game.add.group();
   function spawnPrey(){
     prey = game.add.sprite(preySpawns[Math.floor(preySpawns.length * Math.random())], worldHeight - 64, 'prey');
-    car  = game.add.sprite(preyTargets[Math.floor(preyTargets.length * Math.random())], worldHeight - 128, 'car');
     prey.target = preyTargets[Math.floor(preyTargets.length * Math.random())];
+    car  = game.add.sprite(prey.target, worldHeight - 128, 'car');
     prey.car = car;
     game.physics.enable(prey, Phaser.Physics.ARCADE);
     prey.body.allowGravity = false;
@@ -99,7 +99,7 @@ function create() {
   player.animations.add('right-pounce', [12, 13, 14], 8, false);
   player.animations.add('right-idle', [5], 20, true);
   cars = game.add.group();
-  for (var i = 1; i < 20; i++) {
+  for (var i = 1; i < 7; i++) {
     spawnPrey();
   }
   // Player controls
@@ -144,9 +144,9 @@ function create() {
 function update() {
   //Prey updates
   preys.forEachAlive(function(prey){
-    if (prey.target > prey.position.x + 80) {
+    if (prey.target > prey.position.x - 20) {
       prey.body.velocity.x = 40;
-    } else if (prey.target < prey.position.x + 20) {
+    } else if (prey.target < prey.position.x - 80) {
       prey.body.velocity.x = -40;
     } else{
       //delay

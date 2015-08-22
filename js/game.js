@@ -62,9 +62,10 @@ function create() {
 
   preys = game.add.group();
   function spawnPrey(){
-    prey = game.add.sprite(preySpawns[Math.round(preySpawns.length * Math.random())], worldHeight - 64, 'prey');
-    car  = game.add.sprite(preyTargets[Math.round(preyTargets.length * Math.random())], worldHeight - 128, 'car');
-    prey.target = preyTargets[Math.round(preyTargets.length * Math.random())];
+    prey = game.add.sprite(preySpawns[Math.floor(preySpawns.length * Math.random())], worldHeight - 64, 'prey');
+    car  = game.add.sprite(preyTargets[Math.floor(preyTargets.length * Math.random())], worldHeight - 128, 'car');
+    prey.target = preyTargets[Math.floor(preyTargets.length * Math.random())];
+    prey.car = car;
     game.physics.enable(prey, Phaser.Physics.ARCADE);
     prey.body.allowGravity = false;
     prey.body.velocity.x = -40;
@@ -98,7 +99,7 @@ function create() {
   player.animations.add('right-pounce', [12, 13, 14], 8, false);
   player.animations.add('right-idle', [5], 20, true);
   cars = game.add.group();
-    for (var i = 1; i < 20; i++) {
+  for (var i = 1; i < 20; i++) {
     spawnPrey();
   }
   // Player controls
@@ -143,13 +144,18 @@ function create() {
 function update() {
   //Prey updates
   preys.forEachAlive(function(prey){
-    if (prey.target > prey.position.x) {
+    if (prey.target > prey.position.x + 80) {
       prey.body.velocity.x = 40;
-    } else{
+    } else if (prey.target < prey.position.x + 20) {
       prey.body.velocity.x = -40;
+    } else{
+      //delay
+      prey.destroy();
+      leave(prey.car);
     }
     game.physics.arcade.collide(prey, player, prey.destroy, null, prey);
-  })
+    game.physics.arcade.collide(prey, traps, prey.destroy, null, prey);
+  });
   //Camera updates
   game.camera.focusOnXY(player.position.x, game.world.height / 2);
   //Player updates
@@ -171,6 +177,9 @@ function update() {
   }
 }
 
+function leave(car){
+  game.add.tween(car).to( { x: car.body.x - 400, alpha:0 }, 6000, "Quad.easeOut").start();
+}
 function render () {
 
   // game.debug.text(game.time.physicsElapsed, 32, 32);

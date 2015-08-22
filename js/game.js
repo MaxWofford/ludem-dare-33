@@ -6,6 +6,10 @@ console.log('Game running... you monster');
 // quick config stuff that needs tweaking goes up here
 var sneakSpeed = 50;
 var sprintSpeed = 150;
+var worldWidth = 1920;
+var worldHeight = 600;
+var playerHeight = 48;
+var playerWidth = 32;
 
 var game = new Phaser.Game(800, 600, Phaser.CANVAS, 'actual-cannibal', { preload: preload, create: create, update: update, render: render });
 
@@ -17,16 +21,17 @@ var jumpButton;
 var bg;
 
 function preload() {
-  game.load.spritesheet('shia', 'http://placehold.it/320x480/fff/000', 32, 48);
+  game.load.spritesheet('shia', 'http://placehold.it/320x480/fff/000', playerWidth, playerHeight);
   game.load.image('background', 'http://placehold.it/100x100');
 }
 
 function create() {
   game.physics.startSystem(Phaser.Physics.ARCADE);
   game.time.desiredFps = 60;
-  bg = game.add.tileSprite(0, 0, 800, 600, 'background');
+  game.world.setBounds(0, 0, worldWidth, worldHeight);
+  bg = game.add.tileSprite(0, 0, worldWidth, worldHeight, 'background');
   game.physics.arcade.gravity.y = 1000;
-  player = game.add.sprite(32, 32, 'shia');
+  player = game.add.sprite(32, game.world.height - 2 * playerHeight, 'shia');
   game.physics.enable(player, Phaser.Physics.ARCADE);
   player.body.bounce.y = 0.2;
   player.body.collideWorldBounds = true;
@@ -73,6 +78,7 @@ function create() {
 }
 
 function update() {
+  game.camera.focusOnXY(player.position.x, game.world.height / 2);
 
   // game.physics.arcade.collide(player, layer);
 

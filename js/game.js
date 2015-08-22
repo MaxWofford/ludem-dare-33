@@ -28,7 +28,7 @@ function preload() {
   game.load.spritesheet('shia', 'img/shia.png', 64, 64);
   game.load.spritesheet('trap', 'img/bearTrap.png', 64, 64);
   game.load.image('background', 'http://placehold.it/100x100');
-  game.load.image('ground', 'http://placehold.it/32x32/4CB74C/4CB74C');
+  game.load.image('ground', 'img/road.png');
   game.load.image('car', 'img/car.png');
   game.load.spritesheet('prey', 'img/person.png', 64, 64);
 }
@@ -65,7 +65,7 @@ function create() {
       b.play('snap');
     };
     game.physics.enable(prey, Phaser.Physics.ARCADE);
-    prey.body.setSize(10, 35, 25, 22);
+    prey.body.setSize(10, 35, 25, 18);
     prey.body.allowGravity = false;
     prey.body.velocity.x = -40;
     preys.add(prey);
@@ -114,7 +114,7 @@ function create() {
 
   // Player functions
   player.pounce = function() {
-    this.body.velocity.y = -300;
+    this.body.velocity.y = -350;
     this.body.velocity.x = 450*((facing === 'left')?-1:1);
     player.animations.play(facing+"-pounce");
     player.stamina -= 100;
@@ -195,6 +195,7 @@ function leave(car){
   game.add.tween(car).to( { x: car.body.x - 400, alpha:0 }, 6000, "Quad.easeOut").start();
 }
 function render () {
+  preys.forEachAlive(function(a){game.debug.body(a)}, this);
   // game.debug.text(game.time.physicsElapsed, 32, 32);
   //game.debug.body(trap);
   // game.debug.bodyInfo(player, 16, 24);

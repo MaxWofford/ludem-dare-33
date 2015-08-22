@@ -24,15 +24,17 @@ var bg;
 function preload() {
   game.load.spritesheet('shia', 'http://placehold.it/320x480/fff/000', playerWidth, playerHeight);
   game.load.image('background', 'http://placehold.it/100x100');
+  game.load.image('ground', 'http://placehold.it/32x32/663399/663399');
 }
 
 function create() {
   game.physics.startSystem(Phaser.Physics.ARCADE);
+  // No 30 fps console peasants here
   game.time.desiredFps = 60;
   game.world.setBounds(0, 0, worldWidth, worldHeight);
   bg = game.add.tileSprite(0, 0, worldWidth, worldHeight, 'background');
   game.physics.arcade.gravity.y = 1000;
-  player = game.add.sprite(32, game.world.height - 2 * playerHeight, 'shia');
+  player = game.add.sprite(32, worldHeight - 4 * playerHeight, 'shia');
   game.physics.enable(player, Phaser.Physics.ARCADE);
   player.body.bounce.y = 0.2;
   player.body.collideWorldBounds = true;
@@ -40,6 +42,15 @@ function create() {
   player.animations.add('left', [0, 1, 2, 3], 10, true);
   player.animations.add('turn', [4], 20, true);
   player.animations.add('right', [5, 6, 7, 8], 10, true);
+  ground = game.add.group();
+  for(var x = 0; x < worldWidth; x += 32) {
+    // Add the ground blocks, enable physics on each, make them immovable
+    var groundBlock = game.add.sprite(x, worldHeight - 32, 'ground');
+    game.physics.enable(groundBlock, Phaser.Physics.ARCADE);
+    groundBlock.body.immovable = true;
+    groundBlock.body.allowGravity = false;
+    ground.add(groundBlock);
+  }
 
   // Player controls
   cursors = game.input.keyboard.createCursorKeys();
@@ -81,7 +92,7 @@ function create() {
 function update() {
   game.camera.focusOnXY(player.position.x, game.world.height / 2);
 
-  // game.physics.arcade.collide(player, layer);
+  game.physics.arcade.collide(player, ground);
 
   player.body.velocity.x = 0;
 
@@ -106,21 +117,18 @@ function update() {
   }
 
   // Player's leaping velocity
-  if(!player.body.onFloor() && wasd.shift.isDown){
+  if(!player.body.touching.down && wasd.shift.isDown) {
     player.body.velocity.x = player.body.velocity.x * pounceSpeedMultiplier;
   }
 
-  if ((wasd.up.isDown || cursors.up.isDown || jumpButton.isDown) && player.body.onFloor())
-  {
+  if ((wasd.up.isDown || cursors.up.isDown || jumpButton.isDown) && player.body.touching.down) {
+    console.log('jumping');
     player.pounce();
   }
-
 
 }
 
 function render () {
-
-  game.debug.text(game.time.suggestedFps, 32, 32);
 
   // game.debug.text(game.time.physicsElapsed, 32, 32);
   // game.debug.body(player);

@@ -63,6 +63,15 @@ function create() {
     ground.add(groundBlock);
   }
 
+  traps = game.add.group();
+  trap = game.add.sprite(200, worldHeight - 90, 'trap');
+  trap.animations.add('snap',[0,1,2,3,4],11,true);
+  trap.animations.play('snap');
+  game.physics.enable(trap, Phaser.Physics.ARCADE);
+  trap.body.immovable = true;
+  trap.body.allowGravity = false;
+  traps.add(trap);
+  
   prey = game.add.group();
   function spawnPrey(){
     var preyBlock = game.add.sprite(Math.random() * worldWidth, worldHeight - 64, 'prey');

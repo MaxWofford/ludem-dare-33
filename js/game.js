@@ -13,13 +13,13 @@ var playerWidth = 32;
 var pounceSpeedMultiplier = 3;
 var preySpawns = [100, 900, 1050];
 var preyTargets = [400, 700, 1300];
+var staminaRegen = 0.5;
 
 var game = new Phaser.Game(800, 600, Phaser.CANVAS, 'actual-cannibal', { preload: preload, create: create, update: update, render: render });
 
 var player;
 var facing = 'left';
 var sprinting = false;
-var jumpTimer = 0;
 var cursors;
 var jumpButton;
 var bg;
@@ -40,7 +40,7 @@ function create() {
   game.world.setBounds(0, 0, worldWidth, worldHeight);
   bg = game.add.tileSprite(0, 0, worldWidth, worldHeight, 'background');
   game.physics.arcade.gravity.y = 1000;
-  
+
   // Generate the ground
   ground = game.add.group();
   for(var x = 0; x < worldWidth; x += 32) {
@@ -83,8 +83,8 @@ function create() {
   trap.body.immovable = true;
   trap.body.allowGravity = false;
   traps.add(trap);
-  
   player = game.add.sprite(32, worldHeight - 4 * playerHeight, 'shia');
+  player.stamina = 0;
   game.physics.enable(player, Phaser.Physics.ARCADE);
   player.body.bounce.y = 0.2;
   player.body.collideWorldBounds = true;
@@ -118,6 +118,7 @@ function create() {
     this.body.velocity.y = -300;
     this.body.velocity.x = 450*((facing === 'left')?-1:1);
     player.animations.play(facing+"-pounce");
+    player.stamina -= 100;
   };
   player.moveLeft = function() {
     if (wasd.shift.isDown) {
@@ -171,10 +172,19 @@ function update() {
       player.animations.play(facing+"-idle");
       player.body.velocity.x = 0;
     }
-    if ((wasd.up.isDown || cursors.up.isDown || jumpButton.isDown)&&wasd.shift.isDown) {
+    if ((wasd.up.isDown || cursors.up.isDown || jumpButton.isDown)&&wasd.shift.isDown && player.stamina > 120) {
       player.pounce();
     }
   }
+  //Stamina
+  player.stamina += staminaRegen;
+  if (!wasd.shift.isDown){
+    player.stamina += staminaRegen;
+  }
+  if (player.stamina > 200) {
+    player.stamina = 200;
+  }
+  console.log(player.stamina)
 }
 
 function leave(car){

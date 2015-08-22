@@ -10,6 +10,7 @@ var worldWidth = 1920;
 var worldHeight = 600;
 var playerHeight = 48;
 var playerWidth = 32;
+var pounceSpeedMultiplier = 3;
 
 var game = new Phaser.Game(800, 600, Phaser.CANVAS, 'actual-cannibal', { preload: preload, create: create, update: update, render: render });
 
@@ -102,6 +103,11 @@ function update() {
       }
       facing = 'idle';
     }
+  }
+
+  // Player's leaping velocity
+  if(!player.body.onFloor() && wasd.shift.isDown){
+    player.body.velocity.x = player.body.velocity.x * pounceSpeedMultiplier;
   }
 
   if ((wasd.up.isDown || cursors.up.isDown || jumpButton.isDown) && player.body.onFloor())

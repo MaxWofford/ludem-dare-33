@@ -51,24 +51,21 @@ function create() {
     ground.add(groundBlock);
   }
 
-  traps = game.add.group();
-  trap = game.add.sprite(200, worldHeight - 90, 'trap');
-  trap.animations.add('snap',[0,1,2,3,4],11,true);
-  trap.animations.play('snap');
-  game.physics.enable(trap, Phaser.Physics.ARCADE);
-  trap.body.immovable = true;
-  trap.body.allowGravity = false;
-  traps.add(trap);
-
   preys = game.add.group();
   function spawnPrey(){
-    prey = game.add.sprite(preySpawns[Math.floor(preySpawns.length * Math.random())], worldHeight - 96, 'prey');
+    var prey = game.add.sprite(preySpawns[Math.floor(preySpawns.length * Math.random())], worldHeight - 96, 'prey');
     prey.target = preyTargets[Math.floor(preyTargets.length * Math.random())];
     car  = game.add.sprite(prey.target, worldHeight - 128, 'car');
     prey.car = car;
     prey.animations.add('left', [0, 1, 2, 3], 5, true);
     prey.animations.add('right', [4, 5, 6, 7], 5, true);
+    prey.state = "normal";
+    prey.trap = function(a,b){
+      prey.state = "alert";
+      b.play('snap');
+    };
     game.physics.enable(prey, Phaser.Physics.ARCADE);
+    prey.body.setSize(10, 35, 25, 22);
     prey.body.allowGravity = false;
     prey.body.velocity.x = -40;
     preys.add(prey);
@@ -79,9 +76,9 @@ function create() {
   }
   traps = game.add.group();
   trap = game.add.sprite(200, worldHeight - 90, 'trap');
-  trap.animations.add('snap',[0,1,2,3,4],11,true);
-  trap.animations.play('snap');
+  trap.animations.add('snap',[0,1,2,3,4,5],11,false);
   game.physics.enable(trap, Phaser.Physics.ARCADE);
+  trap.body.setSize(5, 32, 30, 27);
   trap.body.immovable = true;
   trap.body.allowGravity = false;
   traps.add(trap);
@@ -90,7 +87,7 @@ function create() {
   game.physics.enable(player, Phaser.Physics.ARCADE);
   player.body.bounce.y = 0.2;
   player.body.collideWorldBounds = true;
-  player.body.setSize(20, 32, 5, 27);
+  player.body.setSize(20, 35, 20, 22);
   player.animations.add('left', [0, 1, 2, 3], 5, true);
   player.animations.add('left-sprint', [9, 10, 11,11], 8, true);
   player.animations.add('left-pounce', [9, 10, 11], 8, false);
@@ -147,19 +144,23 @@ function create() {
 function update() {
   //Prey updates
   preys.forEachAlive(function(prey){
-    if (prey.target > prey.position.x - 20) {
-      prey.body.velocity.x = 40;
-      prey.animations.play('right')
-    } else if (prey.target < prey.position.x - 80) {
-      prey.body.velocity.x = -40;
-      prey.animations.play('left')
-    } else{
-      //delay
-      prey.destroy();
-      leave(prey.car);
+    if(prey.state === "normal"){
+      if (prey.target > prey.position.x - 20) {
+        prey.body.velocity.x = 40;
+        prey.animations.play('right');
+      } else if (prey.target < prey.position.x - 80) {
+        prey.body.velocity.x = -40;
+        prey.animations.play('left');
+      } else{
+        //delay
+        prey.destroy();
+        leave(prey.car);
+      }
+      game.physics.arcade.collide(prey, traps, prey.trap, null, prey);
+    }else{
+      prey.animations.stop();
     }
     game.physics.arcade.collide(prey, player, prey.destroy, null, prey);
-    game.physics.arcade.collide(prey, traps, prey.destroy, null, prey);
   });
   //Camera updates
   game.camera.focusOnXY(player.position.x, game.world.height / 2);
@@ -194,9 +195,8 @@ function leave(car){
   game.add.tween(car).to( { x: car.body.x - 400, alpha:0 }, 6000, "Quad.easeOut").start();
 }
 function render () {
-
   // game.debug.text(game.time.physicsElapsed, 32, 32);
-  // game.debug.body(player);
+  //game.debug.body(trap);
   // game.debug.bodyInfo(player, 16, 24);
 
 }

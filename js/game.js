@@ -38,6 +38,38 @@ function create() {
   game.world.setBounds(0, 0, worldWidth, worldHeight);
   bg = game.add.tileSprite(0, 0, worldWidth, worldHeight, 'background');
   game.physics.arcade.gravity.y = 1000;
+  
+  // Generate the ground
+  ground = game.add.group();
+  for(var x = 0; x < worldWidth; x += 32) {
+    var groundBlock = game.add.sprite(x, worldHeight - 32, 'ground');
+    game.physics.enable(groundBlock, Phaser.Physics.ARCADE);
+    groundBlock.body.immovable = true;
+    groundBlock.body.allowGravity = false;
+    ground.add(groundBlock);
+  }
+
+  prey = game.add.group();
+  function spawnPrey(){
+    var preyBlock = game.add.sprite(Math.random() * worldWidth, worldHeight - 64, 'prey');
+    game.physics.enable(preyBlock, Phaser.Physics.ARCADE);
+    preyBlock.body.immovable = true;
+    preyBlock.body.allowGravity = false;
+    prey.add(preyBlock);
+  }
+  for (var i = 0; i < 10; i++){
+    spawnPrey();
+  }
+
+  traps = game.add.group();
+  trap = game.add.sprite(200, worldHeight - 90, 'trap');
+  trap.animations.add('snap',[0,1,2,3,4],11,true);
+  trap.animations.play('snap');
+  game.physics.enable(trap, Phaser.Physics.ARCADE);
+  trap.body.immovable = true;
+  trap.body.allowGravity = false;
+  traps.add(trap);
+  
   player = game.add.sprite(32, worldHeight - 4 * playerHeight, 'shia');
   game.physics.enable(player, Phaser.Physics.ARCADE);
   player.body.bounce.y = 0.2;
@@ -52,37 +84,6 @@ function create() {
   player.animations.add('right-sprint', [12, 13, 14,14], 8, true);
   player.animations.add('right-pounce', [12, 13, 14], 8, false);
   player.animations.add('right-idle', [5], 20, true);
-
-  // Generate the ground
-  ground = game.add.group();
-  for(var x = 0; x < worldWidth; x += 32) {
-    var groundBlock = game.add.sprite(x, worldHeight - 32, 'ground');
-    game.physics.enable(groundBlock, Phaser.Physics.ARCADE);
-    groundBlock.body.immovable = true;
-    groundBlock.body.allowGravity = false;
-    ground.add(groundBlock);
-  }
-
-  traps = game.add.group();
-  trap = game.add.sprite(200, worldHeight - 90, 'trap');
-  trap.animations.add('snap',[0,1,2,3,4],11,true);
-  trap.animations.play('snap');
-  game.physics.enable(trap, Phaser.Physics.ARCADE);
-  trap.body.immovable = true;
-  trap.body.allowGravity = false;
-  traps.add(trap);
-  
-  prey = game.add.group();
-  function spawnPrey(){
-    var preyBlock = game.add.sprite(Math.random() * worldWidth, worldHeight - 64, 'prey');
-    game.physics.enable(preyBlock, Phaser.Physics.ARCADE);
-    preyBlock.body.immovable = true;
-    preyBlock.body.allowGravity = false;
-    prey.add(preyBlock);
-  }
-  for (var i = 0; i < 10; i++){
-    spawnPrey();
-  }
 
   // Player controls
   cursors = game.input.keyboard.createCursorKeys();

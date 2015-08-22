@@ -148,6 +148,7 @@ function update() {
     } else{
       prey.body.velocity.x = -40;
     }
+    game.physics.arcade.collide(prey, player, prey.destroy, null, prey);
   })
   //Camera updates
   game.camera.focusOnXY(player.position.x, game.world.height / 2);
@@ -165,7 +166,6 @@ function update() {
       player.body.velocity.x = 0;
     }
     if ((wasd.up.isDown || cursors.up.isDown || jumpButton.isDown)&&wasd.shift.isDown) {
-      console.log('jumping');
       player.pounce();
     }
   }

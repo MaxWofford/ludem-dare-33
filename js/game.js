@@ -16,6 +16,7 @@ var game = new Phaser.Game(800, 600, Phaser.CANVAS, 'actual-cannibal', { preload
 
 var player;
 var facing = 'left';
+var sprinting = false;
 var jumpTimer = 0;
 var cursors;
 var jumpButton;
@@ -41,10 +42,10 @@ function create() {
   player.body.collideWorldBounds = true;
   player.body.setSize(20, 32, 5, 27);
   player.animations.add('left', [0, 1, 2, 3], 5, true);
-  player.animations.add('left-sprint', [9, 10, 11], 10, true);
+  player.animations.add('left-sprint', [9, 10, 11,11], 8, true);
   player.animations.add('turn', [4], 20, true);
   player.animations.add('right', [5, 6, 7, 8], 5, true);
-  player.animations.add('right-sprint', [12, 13, 14], 10, true);
+  player.animations.add('right-sprint', [12, 13, 14,14], 8, true);
 
   // Generate the ground
   ground = game.add.group();
@@ -84,24 +85,24 @@ function create() {
     this.body.velocity.y = -250;
   }
   player.moveLeft = function() {
-    this.body.velocity.x = -sneakSpeed;
     if (wasd.shift.isDown) {
-      this.body.velocity.x = -sprintSpeed;
-    }
-    if (facing != 'left') {
+        this.body.velocity.x = -sprintSpeed;
+        player.animations.play('left-sprint');
+    }else{
+      this.body.velocity.x = -sneakSpeed;
       player.animations.play('left');
-      facing = 'left';
     }
+    facing = 'left';
   }
   player.moveRight = function() {
-    this.body.velocity.x = sneakSpeed;
     if (wasd.shift.isDown) {
-      this.body.velocity.x = sprintSpeed;
-    }
-    if (facing != 'right') {
+        this.body.velocity.x = sprintSpeed;
+        player.animations.play('right-sprint');
+    }else{
+      this.body.velocity.x = sneakSpeed;
       player.animations.play('right');
-      facing = 'right';
     }
+    facing = 'right';
   }
 }
 

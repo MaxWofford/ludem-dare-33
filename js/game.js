@@ -22,7 +22,7 @@ var jumpButton;
 var bg;
 
 function preload() {
-  game.load.spritesheet('shia', 'http://placehold.it/320x480/fff/000', playerWidth, playerHeight);
+  game.load.spritesheet('shia', 'img/shia.png', 64, 64);
   game.load.image('background', 'http://placehold.it/100x100');
   game.load.image('ground', 'http://placehold.it/32x32/4CB74C/4CB74C');
   game.load.image('prey', 'http://placehold.it/32x32/663399/663399');
@@ -39,10 +39,12 @@ function create() {
   game.physics.enable(player, Phaser.Physics.ARCADE);
   player.body.bounce.y = 0.2;
   player.body.collideWorldBounds = true;
-  player.body.setSize(20, 32, 5, 16);
-  player.animations.add('left', [0, 1, 2, 3], 10, true);
+  player.body.setSize(20, 32, 5, 27);
+  player.animations.add('left', [0, 1, 2, 3], 5, true);
+  player.animations.add('left-sprint', [9, 10, 11], 10, true);
   player.animations.add('turn', [4], 20, true);
-  player.animations.add('right', [5, 6, 7, 8], 10, true);
+  player.animations.add('right', [5, 6, 7, 8], 5, true);
+  player.animations.add('right-sprint', [12, 13, 14], 10, true);
 
   // Generate the ground
   ground = game.add.group();

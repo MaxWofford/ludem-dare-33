@@ -63,17 +63,17 @@ function create() {
   preys = game.add.group();
   function spawnPrey(){
     prey = game.add.sprite(preySpawns[Math.round(preySpawns.length * Math.random())], worldHeight - 64, 'prey');
-    prey.target = preyTargets[Math.round(preyTargets.length * Math.random())]
+    car  = game.add.sprite(preyTargets[Math.round(preyTargets.length * Math.random())], worldHeight - 128, 'car');
+    prey.target = preyTargets[Math.round(preyTargets.length * Math.random())];
     game.physics.enable(prey, Phaser.Physics.ARCADE);
     prey.body.allowGravity = false;
     prey.body.velocity.x = -40;
     preys.add(prey);
+    game.physics.enable(car, Phaser.Physics.ARCADE);
+    car.body.allowGravity = false;
+    car.scale.setTo(2,2);
+    cars.add(car);
   }
-
-  for (var i = 1; i < 20; i++) {
-    spawnPrey();
-  }
-
   traps = game.add.group();
   trap = game.add.sprite(200, worldHeight - 90, 'trap');
   trap.animations.add('snap',[0,1,2,3,4],11,true);
@@ -97,7 +97,10 @@ function create() {
   player.animations.add('right-sprint', [12, 13, 14,14], 8, true);
   player.animations.add('right-pounce', [12, 13, 14], 8, false);
   player.animations.add('right-idle', [5], 20, true);
-
+  cars = game.add.group();
+    for (var i = 1; i < 20; i++) {
+    spawnPrey();
+  }
   // Player controls
   cursors = game.input.keyboard.createCursorKeys();
   wasd = {

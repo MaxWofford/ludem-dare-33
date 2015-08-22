@@ -30,7 +30,7 @@ function preload() {
   game.load.image('background', 'http://placehold.it/100x100');
   game.load.image('ground', 'http://placehold.it/32x32/4CB74C/4CB74C');
   game.load.image('car', 'img/car.png');
-  game.load.image('prey', 'http://placehold.it/32x32/663399/663399');
+  game.load.spritesheet('prey', 'img/person.png', 64, 64);
 }
 
 function create() {
@@ -62,10 +62,12 @@ function create() {
 
   preys = game.add.group();
   function spawnPrey(){
-    prey = game.add.sprite(preySpawns[Math.floor(preySpawns.length * Math.random())], worldHeight - 64, 'prey');
+    prey = game.add.sprite(preySpawns[Math.floor(preySpawns.length * Math.random())], worldHeight - 96, 'prey');
     prey.target = preyTargets[Math.floor(preyTargets.length * Math.random())];
     car  = game.add.sprite(prey.target, worldHeight - 128, 'car');
     prey.car = car;
+    prey.animations.add('left', [0, 1, 2, 3], 5, true);
+    prey.animations.add('right', [4, 5, 6, 7], 5, true);
     game.physics.enable(prey, Phaser.Physics.ARCADE);
     prey.body.allowGravity = false;
     prey.body.velocity.x = -40;
@@ -122,8 +124,8 @@ function create() {
   };
   player.moveLeft = function() {
     if (wasd.shift.isDown) {
-        this.body.velocity.x = -sprintSpeed;
-        player.animations.play('left-sprint');
+      this.body.velocity.x = -sprintSpeed;
+      player.animations.play('left-sprint');
     }else{
       this.body.velocity.x = -sneakSpeed;
       player.animations.play('left');
@@ -132,8 +134,8 @@ function create() {
   };
   player.moveRight = function() {
     if (wasd.shift.isDown) {
-        this.body.velocity.x = sprintSpeed;
-        player.animations.play('right-sprint');
+      this.body.velocity.x = sprintSpeed;
+      player.animations.play('right-sprint');
     }else{
       this.body.velocity.x = sneakSpeed;
       player.animations.play('right');
@@ -147,8 +149,10 @@ function update() {
   preys.forEachAlive(function(prey){
     if (prey.target > prey.position.x - 20) {
       prey.body.velocity.x = 40;
+      prey.animations.play('right')
     } else if (prey.target < prey.position.x - 80) {
       prey.body.velocity.x = -40;
+      prey.animations.play('left')
     } else{
       //delay
       prey.destroy();
@@ -172,7 +176,7 @@ function update() {
       player.animations.play(facing+"-idle");
       player.body.velocity.x = 0;
     }
-    if ((wasd.up.isDown || cursors.up.isDown || jumpButton.isDown)&&wasd.shift.isDown && player.stamina > 120) {
+    if ((wasd.up.isDown || cursors.up.isDown || jumpButton.isDown) && wasd.shift.isDown && player.stamina > 120) {
       player.pounce();
     }
   }
@@ -184,7 +188,6 @@ function update() {
   if (player.stamina > 200) {
     player.stamina = 200;
   }
-  console.log(player.stamina)
 }
 
 function leave(car){

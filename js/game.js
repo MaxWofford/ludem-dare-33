@@ -66,11 +66,24 @@ function create() {
     car  = game.add.sprite(prey.target, worldHeight - 128, 'car');
     prey.car = car;
     prey.animations.add('left', [0, 1, 2, 3], 5, true);
+    prey.animations.add('left-death', [16, 17, 18, 19, 20, 21, 22, 23], 3, false);
     prey.animations.add('right', [4, 5, 6, 7], 5, true);
-    prey.state = 'normal';
+    prey.animations.add('right-death', [8, 9, 10, 11, 12, 13, 14, 15], 3, false);
+    prey.state = "normal";
     prey.trap = function(a,b){
       prey.state = 'alert';
       b.play('snap');
+    };
+    prey.die = function(){
+      prey.state = "dying";
+      prey.body.immovable = true;
+      prey.body.velocity.x = 0;
+      player.body.x = prey.body.x;
+      player.state = "eating";
+      playSound('sound/shiaPounce.mp3');
+      player.eating = 100;
+      prey.animations.play(prey.animations.currentAnim.name+"-death");
+      prey.alive = false;
     };
     game.physics.enable(prey, Phaser.Physics.ARCADE);
     prey.body.setSize(10, 35, 25, 18);
@@ -106,7 +119,7 @@ function create() {
   player.animations.add('right-pounce', [12, 13, 14], 8, false);
   player.animations.add('right-idle', [5], 20, true);
   cars = game.add.group();
-  for (var i = 1; i < 7; i++) {
+  for (var i = 1; i < 2; i++) {
     spawnPrey();
   }
   // Player controls
@@ -126,7 +139,6 @@ function create() {
     this.body.velocity.x = 450*((facing === 'left')?-1:1);
     player.animations.play(facing+"-pounce");
     player.stamina -= 100;
-    playSound('sound/shiaPounce.mp3');
   };
   player.moveLeft = function() {
     if (wasd.shift.isDown) {
@@ -170,15 +182,21 @@ function update() {
         leave(prey.car);
       }
       game.physics.arcade.collide(prey, traps, prey.trap, null, prey);
-    }else{
+    }else if(prey.state === "alert"){
       prey.animations.stop();
     }
-    game.physics.arcade.collide(prey, player, prey.destroy, null, prey);
+    game.physics.arcade.collide(prey, player, prey.die, null, prey);
   });
   //Camera updates
   game.camera.focusOnXY(player.position.x, game.world.height / 2);
   //Player updates
   game.physics.arcade.collide(player, ground);
+  if(player.state === "eating"){
+    player.eating--;
+    if(player.eating < 0){
+      player.state = "normal";
+    }
+  }
   if(player.body.touching.down) {
     if (cursors.left.isDown || wasd.left.isDown) {
       player.moveLeft();
@@ -210,9 +228,8 @@ function leave(car){
   game.add.tween(car).to( { x: car.body.x - 400, alpha:0 }, 6000, "Quad.easeOut").start();
 }
 function render () {
-  preys.forEachAlive(function(a){game.debug.body(a)}, this);
+  //preys.forEachAlive(function(a){game.debug.body(a)}, this);
   // game.debug.text(game.time.physicsElapsed, 32, 32);
   //game.debug.body(trap);
   // game.debug.bodyInfo(player, 16, 24);
-
 }

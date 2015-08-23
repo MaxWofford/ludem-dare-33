@@ -25,6 +25,11 @@ var jumpButton;
 var bg;
 var healthbar;
 
+function playSound(file) {
+  var a = new Audio(file);
+  a.play();
+}
+
 function preload() {
   game.load.spritesheet('shia', 'img/shia.png', 64, 64);
   game.load.spritesheet('trap', 'img/bearTrap.png', 64, 64);
@@ -62,9 +67,9 @@ function create() {
     prey.car = car;
     prey.animations.add('left', [0, 1, 2, 3], 5, true);
     prey.animations.add('right', [4, 5, 6, 7], 5, true);
-    prey.state = "normal";
+    prey.state = 'normal';
     prey.trap = function(a,b){
-      prey.state = "alert";
+      prey.state = 'alert';
       b.play('snap');
     };
     game.physics.enable(prey, Phaser.Physics.ARCADE);
@@ -121,6 +126,7 @@ function create() {
     this.body.velocity.x = 450*((facing === 'left')?-1:1);
     player.animations.play(facing+"-pounce");
     player.stamina -= 100;
+    playSound('sound/shiaPounce.mp3');
   };
   player.moveLeft = function() {
     if (wasd.shift.isDown) {

@@ -24,6 +24,7 @@ var cursors;
 var jumpButton;
 var bg;
 var healthbar;
+var dying;
 
 function playSound(file) {
   var a = new Audio(file);
@@ -66,9 +67,9 @@ function create() {
     car  = game.add.sprite(prey.target, worldHeight - 128, 'car');
     prey.car = car;
     prey.animations.add('left', [0, 1, 2, 3], 5, true);
-    prey.animations.add('left-death', [16, 17, 18, 19, 20, 21, 22, 23], 3, false);
+    prey.animations.add('left-death', [16, 17, 18, 19, 20, 21, 22, 23], .01, false);
     prey.animations.add('right', [4, 5, 6, 7], 5, true);
-    prey.animations.add('right-death', [8, 9, 10, 11, 12, 13, 14, 15], 3, false);
+    prey.animations.add('right-death', [8, 9, 10, 11, 12, 13, 14, 15], .01, false);
     prey.state = "normal";
     prey.trap = function(a,b){
       prey.state = 'alert';
@@ -81,8 +82,10 @@ function create() {
       player.body.x = prey.body.x;
       player.state = "eating";
       playSound('sound/shiaPounce.mp3');
-      player.eating = 100;
+      player.eating = 7;
       prey.animations.play(prey.animations.currentAnim.name+"-death");
+      player.body.velocity.x = 0;
+      dying = prey;
       prey.alive = false;
     };
     game.physics.enable(prey, Phaser.Physics.ARCADE);
@@ -118,6 +121,7 @@ function create() {
   player.animations.add('right-sprint', [12, 13, 14,14], 8, true);
   player.animations.add('right-pounce', [12, 13, 14], 8, false);
   player.animations.add('right-idle', [5], 20, true);
+  player.eating = 0;
   cars = game.add.group();
   for (var i = 1; i < 2; i++) {
     spawnPrey();
@@ -132,7 +136,19 @@ function create() {
     shift: game.input.keyboard.addKey(Phaser.Keyboard.SHIFT)
   };
   jumpButton = game.input.keyboard.addKey(Phaser.Keyboard.SPACEBAR);
-
+  eatButton  = game.input.keyboard.addKey(Phaser.Keyboard.E);
+  eatButton.onDown.add(function(){
+    console.log('nom');
+    if(dying){
+      dying.animations.currentAnim.frame = 8-player.eating;
+      if(player.eating === 0){
+        dying = undefined;
+      }else{
+        player.eating--;
+      }
+    }
+  }, this);
+  
   // Player functions
   player.pounce = function() {
     this.body.velocity.y = -350;
@@ -166,7 +182,8 @@ function create() {
   healthbar.cropEnabled = true;
 }
 
-function update() {
+function update(e) {
+  
   //Prey updates
   preys.forEachAlive(function(prey){
     if(prey.state === "normal"){
@@ -192,8 +209,9 @@ function update() {
   //Player updates
   game.physics.arcade.collide(player, ground);
   if(player.state === "eating"){
-    player.eating--;
-    if(player.eating < 0){
+    if(player.eating > 0){
+      return;
+    }else{
       player.state = "normal";
     }
   }

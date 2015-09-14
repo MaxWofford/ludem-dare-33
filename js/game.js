@@ -66,10 +66,9 @@ function create() {
     prey.target = preyTargets[Math.floor(preyTargets.length * Math.random())];
     car  = game.add.sprite(prey.target, worldHeight - 128, 'car');
     prey.car = car;
-    prey.animations.add('left', [0, 1, 2, 3], 5, true);
-    prey.animations.add('left-death', [16, 17, 18, 19, 20, 21, 22, 23], .01, false);
-    prey.animations.add('right', [4, 5, 6, 7], 5, true);
-    prey.animations.add('right-death', [8, 9, 10, 11, 12, 13, 14, 15], .01, false);
+    prey.anchor.setTo(.5, 0);
+    prey.animations.add('walk', [0, 1, 2, 3], 5, true);
+    prey.animations.add('death', [4, 5, 6, 7, 8, 9, 10, 11], .01, false);
     prey.state = "normal";
     prey.trap = function(a,b){
       prey.state = 'alert';
@@ -83,13 +82,13 @@ function create() {
       player.state = "eating";
       playSound('sound/shiaPounce.mp3');
       player.eating = 7;
-      prey.animations.play(prey.animations.currentAnim.name+"-death");
+      prey.animations.play("death");
       player.body.velocity.x = 0;
       dying = prey;
       prey.alive = false;
     };
     game.physics.enable(prey, Phaser.Physics.ARCADE);
-    prey.body.setSize(10, 35, 25, 18);
+    prey.body.setSize(10, 35, 0, 18);
     prey.body.allowGravity = false;
     prey.body.velocity.x = -40;
     preys.add(prey);
@@ -185,12 +184,13 @@ function update(e) {
   //Prey updates
   preys.forEachAlive(function(prey){
     if(prey.state === "normal"){
+      prey.animations.play('walk');
       if (prey.target > prey.position.x - 20) {
         prey.body.velocity.x = 40;
-        prey.animations.play('right');
+        prey.scale.x = 1;
       } else if (prey.target < prey.position.x - 80) {
         prey.body.velocity.x = -40;
-        prey.animations.play('left');
+        prey.scale.x = -1;
       } else{
         //delay
         prey.destroy();

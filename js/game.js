@@ -109,18 +109,14 @@ function create() {
   player = game.add.sprite(32, worldHeight - 4 * playerHeight, 'shia');
   player.stamina = 0;
   game.physics.enable(player, Phaser.Physics.ARCADE);
+  player.anchor.setTo(.5, 0);
   player.body.bounce.y = 0.2;
   player.body.collideWorldBounds = true;
-  player.body.setSize(20, 35, 20, 22);
-  player.animations.add('left', [0, 1, 2, 3], 5, true);
-  player.animations.add('left-sprint', [9, 10, 11,11], 8, true);
-  player.animations.add('left-pounce', [9, 10, 11], 8, false);
-  player.animations.add('left-idle', [0], 20, true);
-  player.animations.add('turn', [4], 20, true);
-  player.animations.add('right', [5, 6, 7, 8], 5, true);
-  player.animations.add('right-sprint', [12, 13, 14,14], 8, true);
-  player.animations.add('right-pounce', [12, 13, 14], 8, false);
-  player.animations.add('right-idle', [5], 20, true);
+  player.body.setSize(20, 35, 0, 22);
+  player.animations.add('walk', [0, 1, 2, 3], 5, true);
+  player.animations.add('sprint', [4, 5, 6, 6], 8, true);
+  player.animations.add('pounce', [4, 5, 6], 8, false);
+  player.animations.add('idle', [0], 20, true);
   player.eating = 0;
   cars = game.add.group();
   for (var i = 1; i < 2; i++) {
@@ -153,27 +149,29 @@ function create() {
   player.pounce = function() {
     this.body.velocity.y = -350;
     this.body.velocity.x = 450*((facing === 'left')?-1:1);
-    player.animations.play(facing+"-pounce");
+    player.animations.play("pounce");
     player.stamina -= 100;
   };
   player.moveLeft = function() {
     if (wasd.shift.isDown) {
       this.body.velocity.x = -sprintSpeed;
-      player.animations.play('left-sprint');
+      player.animations.play('sprint');
     }else{
       this.body.velocity.x = -sneakSpeed;
-      player.animations.play('left');
+      player.animations.play('walk');
     }
+    player.scale.x = -1;
     facing = 'left';
   };
   player.moveRight = function() {
     if (wasd.shift.isDown) {
       this.body.velocity.x = sprintSpeed;
-      player.animations.play('right-sprint');
+      player.animations.play('sprint');
     }else{
       this.body.velocity.x = sneakSpeed;
-      player.animations.play('right');
+      player.animations.play('walk');
     }
+    player.scale.x = 1;
     facing = 'right';
   };
 
@@ -223,7 +221,7 @@ function update(e) {
       player.moveRight();
     }
     else {
-      player.animations.play(facing+"-idle");
+      player.animations.play("idle");
       player.body.velocity.x = 0;
     }
     if ((wasd.up.isDown || cursors.up.isDown || jumpButton.isDown) && wasd.shift.isDown && player.stamina > 120) {
@@ -248,6 +246,6 @@ function leave(car){
 function render () {
   //preys.forEachAlive(function(a){game.debug.body(a)}, this);
   // game.debug.text(game.time.physicsElapsed, 32, 32);
-  //game.debug.body(trap);
+  //game.debug.body(player);
   // game.debug.bodyInfo(player, 16, 24);
 }
